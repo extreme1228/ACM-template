@@ -1,0 +1,35 @@
+7.Tarjon()//强连通图，缩点
+
+void Tarjon(int x)//dfs枚举强联通分量
+{
+    dfn[x]=low[x]=++tot;
+    st.push(x);
+    vis[x]=1;
+    for(int i=0;i<G[x].size();i++){
+        EDGE e=G[x][i];
+        if(!dfn[e.to]){
+            //如果还没有访问过这个子节点，那么就递归访问
+            Tarjon(e.to);
+            //访问完之后记得回溯更新low值
+            low[x]=min(low[x],low[e.to]);
+        }
+        else if(vis[e.to]){
+            //如果访问过该节点，且该节点仍然在栈中，那么就利用该节点更新当前节点的low值
+            //很大概率是出现了一个环，也就是强联通分量
+            low[x]=min(low[x],dfn[e.to]);
+        }
+    }
+    //如果当前节点外联的边都遍历完毕，那么首先确定该节点是否为强联通子图的根节点
+    if(low[x]==dfn[x]){
+        //是根节点，那么完成出栈操作
+		Tot++;
+        while(1){
+            int top=st.top();
+            vis[top]=0;
+            st.pop();
+			in[top]=tot;//记录新点编号
+            if(top==x)
+                break;
+        }
+    }
+}

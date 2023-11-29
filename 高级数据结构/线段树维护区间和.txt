@@ -1,0 +1,60 @@
+
+//简单线段树模板，适用于维护区间和信息，如果要维护区间最值信息的话，在该基础上稍加改动即可实现。
+int a[maxn]
+struct SegTree{
+    int sum[4*maxn],tag[4*maxn];
+    void push_up(int rt)
+    {
+        //push_up函数的具体实现取决于我们想要维护的区间信息(区间和，最大值最小值)
+        sum[rt]=(sum[2*rt]+sum[2*rt+1]);//这里注意可能有某些问题数值很大需要再这里取模
+    }
+    void build(int rt,int l,int r)
+    {
+        if(l>r)return ;
+        if(l==r){
+            sum[rt]=a[l];//这里的a数组是我们想维护的区间数组
+            return;
+        }
+        int mid=(l+r)/2;
+        build(2*rt,l,mid);
+        build(2*rt+1,mid+1,r);
+        push_up(rt);
+    }
+    void push_down(int rt,int len_l,int len_r)
+    {
+        if(tag[rt]){
+            sum[2*rt]+=tag[rt]*len_l;
+            sum[2*rt+1]+=tag[rt]*len_r;
+            tag[2*rt]+=tag[rt];
+            tag[2*rt+1]+=tag[rt];
+            tag[rt]=0;
+        }
+    }
+    void update(int rt,int L,int R,int l,int r,int k)
+    {
+        //目标区间[L,R]+=k
+        if(L<=l&&r<=R){
+            //如果当前rt所代表区间被目标区间完全包括，直接更改rt节点处的值更新tag数组
+            sum[rt]+=k*(r-l+1);
+            tag[rt]+=k;
+            return;
+        }
+        int mid=(l+r)/2;
+        push_down(rt,mid-l+1,r-mid);//先下移tag影响
+        if(mid>=L)update(2*rt,L,R,l,mid,k);
+        if(mid+1<=R)update(2*rt+1,L,R,mid+1,r,k);
+        push_up(rt);
+    }
+    int query(int rt,int L,int R,int l,int r)
+    {
+        if(L<=l&&r<=R){
+            return sum[rt];
+        }
+        int mid=(l+r)/2;
+        push_down(rt,mid-l+1,r-mid);
+        int ans=0;
+        if(mid>=L)ans+=query(2*rt,L,R,l,mid);
+        if(mid+1<=R)ans+=query(2*rt+1,L,R,mid+1,r);
+        return ans;
+    }
+}st;

@@ -1,0 +1,102 @@
+8.Krusal算法延伸（Krusal重构树）
+Krusal重构树算法是Krusal算法的延伸，在利用并查集建立最小生成树时，每次合并两个集合都创建一个虚拟节点作为刚合并的两个祖先节点的父节点，该虚拟节点的权值表示两个子树中所有节点之间路径中最长边的最小值（具体最值取法取决于对于边的排序顺序），该算法适合于解决求图中两个点直接所有路径中最长边的最小值或最短边的最大值，Krsual重构树具有优良的性质，其中任意两个叶子结点代表原图中的节点，任意两个叶子结点之间路径中最大值的最小值即为两个节点最近公共祖先的权值（可以结合LCA问题求解，利用树上倍增思想）。
+基础模板如下：
+（以2021年ICPC上海站H题Life is a game 为例）
+
+1	 #include<bits/stdc++.h>  
+2.	using namespace std;  
+3.	  
+4.	typedef long long ll;  
+5.	const int maxn=2e5+10;  
+6.	int n,m,q;  
+7.	ll a[maxn];  
+8.	int fa[maxn];//维护并查集  
+9.	ll d[maxn];//维护每条边的权值，也即是重构树中非叶子结点的权值  
+10.	vector<int>e[maxn];//重构Krusal树  
+11.	ll down[maxn];//维护该节点下所有叶子节点（也即是代表城市）的权值和  
+12.	int f[maxn][20];//倍增数组，用来回溯树  
+13.	int find(int x)  
+14.	{  
+15.	    if(x==fa[x])return x;  
+16.	    return fa[x]=find(fa[x]);//路径压缩  
+17.	}  
+18.	struct EDGE{  
+19.	    int u;  
+20.	    int v;  
+21.	    int cost;  
+22.	}edge[maxn];  
+23.	bool cmp(EDGE x,EDGE y)  
+24.	{  
+25.	    return x.cost<y.cost;  
+26.	}  
+27.	  
+28.	int Krusal()  
+29.	{  
+30.	    //初始化并查集  
+31.	    for(int i=1;i<=2*n;i++)fa[i]=i;  
+32.	    int node=n;  
+33.	    for(int i=1;i<=m;i++){  
+34.	        int fa_u=find(edge[i].u);  
+35.	        int fa_v=find(edge[i].v);  
+36.	        if(fa_u!=fa_v){  
+37.	            d[++node]=edge[i].cost;  
+38.	            fa[fa_u]=fa[fa_v]=node;  
+39.	            e[node].push_back(fa_u);  
+40.	            e[node].push_back(fa_v);  
+41.	        }  
+42.	    }  
+43.	    return node;  
+44.	}  
+45.	int build(int x)  
+46.	{  
+47.	    ll sum=a[x];  
+48.	    for(int i=0;i<e[x].size();i++){  
+49.	        int j=e[x][i];//x节点的孩子  
+50.	        f[j][0]=x;//从j节点向上走一步到达的节点是i  
+51.	        for(int s=1;s<20;s++){  
+52.	            f[j][s]=f[f[j][s-1]][s-1];  
+53.	        }  
+54.	        sum+=build(j);  
+55.	    }  
+56.	    down[x]=sum;  
+57.	    return sum;  
+58.	}  
+59.	void Solution(int root)  
+60.	{  
+61.	    int x,k;  
+62.	    scanf("%d %d",&x,&k);  
+63.	    ll ans=a[x]+k;  
+64.	    d[0]=1e18;//0代表跳出了树的范围，要给一个极大值，表示跳不到  
+65.	    while(x!=root){  
+66.	        int tmp=x;  
+67.	        for(int i=19;i>=0;i--){  
+68.	            //倍增向上找  
+69.	            if(d[f[x][i]]<=ans){  
+70.	                //如果当前的权值足以走到x的第2的i次方个父亲处，那么直接跳到该处  
+71.	                //注：因为Krusal重构树从上到下，非叶子结点的权值不增，所以只需要判断深度最小的权值即可，也即是  
+72.	                //这一路上最大的权值  
+73.	                x=f[x][i];  
+74.	                ans=k+down[x];  
+75.	            }  
+76.	        }  
+77.	        if(x==tmp){  
+78.	            //如果一步都走不了了,直接跳出  
+79.	            break;  
+80.	        }  
+81.	    }  
+82.	    printf("%lld\n",ans);  
+83.	}  
+84.	int main()  
+85.	{  
+86.	    scanf("%d %d %d",&n,&m,&q);  
+87.	    for(int i=1;i<=n;i++)scanf("%lld",&a[i]);  
+88.	    for(int i=1;i<=m;i++){  
+89.	        scanf("%d %d %d",&edge[i].u,&edge[i].v,&edge[i].cost);  
+90.	    }  
+91.	    sort(edge+1,edge+m+1,cmp);  
+92.	    int root=Krusal();//建立重构树  
+93.	    build(root);//初始化ST查询表以及down数组  
+94.	    while(q--){  
+95.	        Solution(root);  
+96.	    }  
+97.	}  

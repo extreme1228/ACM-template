@@ -1,0 +1,27 @@
+/*
+单调队列示例代码，用来O(n)的维护一段连续区间内的最大最小值。
+*/
+
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int maxn =1e5+10;
+const int INF =1e9+7;
+
+pair<ll, ll> p_min[maxn];
+ll head = 1, tail = 0, K;
+
+ll get_min() {
+    if (head <= tail)
+        return p_min[head].first;
+    return INF;
+}
+void push(ll val, ll pos) {
+    while (head <= tail && p_min[tail].first >= val)tail--;
+    p_min[++tail] = make_pair(val, pos);
+    while (p_min[head].second < pos - K + 1)head++;
+}
+void pop(ll pos)
+{
+    while (p_min[head].second < pos - K +1)head++;
+}

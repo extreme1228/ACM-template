@@ -1,0 +1,13 @@
+3.Folyd();//适用于多源最短路以及涉及到最短路中间的节点问题时，扩展算法可以记录最短路的个数
+注：Folyd算法需要用邻接矩阵存图
+
+void Floyd()
+{
+    for(int k=1;k<=n;k++)
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=n;j++){
+            if(f[i][j]>f[i][k]+f[k][j])
+                f[i][j]=f[j][i]=f[i][k]+f[k][j];
+        }
+    return ;
+}

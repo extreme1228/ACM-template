@@ -1,0 +1,53 @@
+2.spfa()//用于计算单源最短路，正负权图均可处理，基于队列和边更新思想实现
+
+注：spfa可进一步分为bfs实现和dfs实现，一般来讲，dfs更倾向于判负环，可以提高算法速度，bfs倾向于处理带
+负权的最短路或最长路
+
+bool spfa_bfs(int s)
+{
+    memset(d,INF,sizeof(d));//d[]是距离数组，存储某个点到指定源点的当前最短距离
+    memset(vis,0,sizeof(vis));//vis是标记数组，标记某个节点是否在队列中
+    memset(cnt,0,sizeof(cnt));//cnt是计数数组，记录每个点进入队列的次数，判负环
+    d[s]=0;
+    queue<int>q;
+    q.push(s);
+    cnt[s]++;
+    vis[s]=1;
+    while(!q.empty()){
+        int u=q.front();
+        q.pop();
+        vis[u]=0;
+        for(int i=0;i<G[u].size();i++){
+            EDGE e=G[u][i];
+            if(d[e.to]>d[u]+e.cost){
+                d[e.to]=d[u]+e.cost;
+                if(!vis[e.to]){
+                    vis[e.to]=1;
+                    q.push(e.to);
+                    cnt[e.to]=cnt[u]+1;
+                    if(cnt[e.to]>n)
+                        return true;//表示存在负环
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool spfa_dfs(int pos)
+{
+    vis[pos]=1;
+    for(int i=0;i<G[pos].size();i++){
+        EDGE e=G[pos][i];
+        if(d[e.to]>d[pos]+e.to){
+            if(vis[e.to])
+                return false;//找到负环
+            vis[e.to]=true;
+            d[e.to]=d[pos]+e.to;
+            if(!spfa(ans,e.to))
+                return false;
+        }
+    }
+    vis[pos]=0;
+    return true;
+}

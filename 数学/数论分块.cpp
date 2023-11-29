@@ -1,0 +1,24 @@
+/*
+数论分块用于求解 /sum_{i:1->n}(f[i]*g[n/i])的式子，这里的除为整除，
+原理在于满足n/j = n/i 的最大的j是 n/(n/i),均为整除
+*/
+//例题以求解/sum_{i:1->n}(f[i]*n/i)为例
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int maxn = 1e5+10;
+ll f[maxn];
+ll sum[maxn];//sum为f的前缀和
+
+int main()
+{
+    int n;
+    int l = 1;
+    ll ans = 0;
+    while(l<=n){
+        int r = n/(n/l);
+        ans += (sum[r] - sum[l-1])*(n/l);
+        l = r + 1;
+    }
+    cout<<ans;
+}

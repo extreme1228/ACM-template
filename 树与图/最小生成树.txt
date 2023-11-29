@@ -1,0 +1,36 @@
+4.Kusral()//最小生成树问题，结合并查集实现
+
+int Kusral()
+{
+    int k=0;
+    int ans=0;
+    for(int i=1;i<=m;i++){
+        EDGE e=edge[i];
+        int fa_x=find(e.from);
+        int fa_y=find(e.to);
+        if(fa_x!=fa_y){
+            k++;
+            ans+=edge[i].cost;
+            my_union(fa_x,fa_y);
+            if(k>=p)
+                break;
+        }
+    }
+    return ans;
+}
+
+5.并查集,可以处理元素合并的问题，扩展算法有带权并查集和种类并查集
+
+int find(int x)
+{
+    if(x==fa[x])
+        return x;
+    return fa[x]=find(fa[x]);
+}
+
+void my_union(int x,int y)
+{
+    int fa_x=find(x);
+    int fa_y=find(y);
+    fa[fa_y]=fa_x;
+}

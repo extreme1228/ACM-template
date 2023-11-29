@@ -1,0 +1,26 @@
+int res = 0;
+int tmp[maxn];
+void merge_sort(vector<int>&f,int l,int r)
+{
+    if(l>=r)return;
+    int mid = (l+r)/2;
+    merge_sort(f,l,mid);
+    merge_sort(f,mid+1,r);
+    int i = l,j = mid+1;
+    int  k = i;
+    while(i<=mid&&j<=r){
+        if(f[i]>=f[j]){
+            tmp[k++] = f[i++];
+        }
+        else{
+            res+=mid - i + 1;
+            tmp[k++] = f[j++];
+        }
+    }
+    while(i<=mid)tmp[k++] = f[i++];
+    while(j<=r)tmp[k++] = f[j++];
+    for(int i = l;i<=r;i++){
+        f[i] = tmp[i];
+    }
+    return;
+}

@@ -1,0 +1,136 @@
+const int maxn=10005;
+struct BigInt{
+    int len;//数字的长度
+    ll num[maxn];
+    void init(const string&s)//用string初始化BigInt
+    {
+        memset(num,0,sizeof(num));
+        len=s.length();
+        for(int i=1;i<=len;i++)num[i]=s[len-i]-'0';
+}
+void init(ll a)
+    {
+        memset(num,0,sizeof(num));
+        len=0;
+        if(!a)num[++len]=0;
+        else
+        while(a){
+            num[++len]=a%10;
+            a/=10;
+        }
+    }
+
+    void print()//打印BigInt
+    {
+        for(int i=len;i>=1;i--)printf("%lld",num[i]);
+    }
+    friend BigInt operator +(const BigInt&a,const BigInt&b)
+    {
+        BigInt c;
+        c.init("");//c一开始是一个空串
+        int max_len=max(a.len,b.len);
+        c.len=max_len;
+        for(int i=1;i<=max_len;i++)c.num[i]=a.num[i]+b.num[i];
+        //进位
+        ll tmp=0;
+        int pos=1;
+        while(1){
+            c.num[pos]+=tmp;
+            tmp=c.num[pos]/10;
+            c.num[pos]%=10;
+            pos++;
+            if(pos>max_len)break;
+        }
+        while(tmp){
+            c.num[++c.len]=tmp%10;
+            tmp/=10;
+        }
+        while(1){
+            if(c.num[c.len]==0){
+                if(c.len==1)break;
+                c.len--;
+                continue;
+            }
+            break;
+        }
+        return c;
+    }
+    friend BigInt operator -(const BigInt&a,const BigInt&b)
+    {
+        BigInt c;
+        c.init("");
+        int max_len=max(a.len,b.len);
+        for(int i=1;i<=max_len;i++)c.num[i]=a.num[i]-b.num[i];
+        c.len=max_len;
+        ll tmp=0;
+        int pos=1;
+        while(1){
+            c.num[pos]+=tmp;
+            if(c.num[pos]<0)tmp=-1,c.num[pos]+=10;
+            else tmp=0;
+            pos++;
+            if(pos>max_len)break;
+        }
+        if(c.num[c.len]<0)c.num[c.len]+=10,c.num[++c.len]-=1;
+        while(1){
+            if(c.num[c.len]==0){
+                if(c.len==1)break;
+                c.len--;
+                continue;
+            }
+            break;
+        }
+        return c;
+    }
+    friend BigInt operator *(const BigInt&a,const BigInt&b)
+    {
+        BigInt c;
+        c.init("");
+        c.len=a.len+b.len-1;
+        for(int i=1;i<=a.len;i++)
+            for(int j=1;j<=b.len;j++)
+                c.num[i+j-1]+=a.num[i]*b.num[j];
+        ll tmp=0,pos=1;
+        while(1){
+            c.num[pos]+=tmp;
+            tmp=c.num[pos]/10;
+            c.num[pos]%=10;
+            pos++;
+            if(pos>c.len)break;
+        }
+        while(tmp){
+            c.num[++c.len]=tmp%10;
+            tmp/=10;
+        }
+        while(1){
+            if(c.num[c.len]==0){
+                if(c.len==1)break;
+                c.len--;
+            }
+            break;
+        }
+        return c;
+    }
+    friend BigInt operator /(const BigInt&a,const ll b)//高精度除longlong
+    {
+        BigInt c;
+        c.init("");
+        c.len=a.len;
+        ll tmp=0;
+        for(int i=1;i<=c.len;i++)c.num[i]=a.num[i];
+        for(int i=c.len;i>=1;i--){
+            c.num[i]+=tmp*10;
+            tmp=c.num[i]%b;
+            c.num[i]/=b;
+        }
+        while(1){
+            if(c.num[c.len]==0){
+                if(c.len==1)break;
+                c.len--;
+                continue;
+            }
+            break;
+        }
+        return c;
+    }
+};

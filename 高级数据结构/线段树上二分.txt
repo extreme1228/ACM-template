@@ -1,0 +1,191 @@
+/*
+本题以线段树模拟快速排序交换次数为例，作为线段树上二分的模版
+线段树上二分应用与解决在线段树上维护的区间上寻找满足某一条件的最靠右的左端点和最靠左的右端点
+以本题为例，线段树上二分可以log时间复杂度内求得对于一个固定位置i，满足位于[1,i]区间中的大于a[i]的最靠左的位置
+和位于[i,n]区间中的小于a[i]的最靠右的位置
+同时，线段树上二分还可以判断某位置左侧连续某数字的最左侧位置，或右侧某连续数字的最靠右位置（可以通过维护区间min,max来实现）
+*/
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+ 
+const int maxn = 5e5+10;
+struct ST{
+    ll minv;
+    ll maxv;
+    ll min_tag;
+    ll max_tag;
+}st[maxn<<2];
+int a[maxn];
+int n;
+//push_up,上传影响
+void push_up(int rt)
+{
+    st[rt].minv = min(st[2*rt].minv,st[2*rt+1].minv);
+    st[rt].maxv = max(st[2*rt].maxv,st[2*rt+1].maxv);
+}
+
+//本题没有用到push_down，涉及到区间修改的可能会用到
+void push_down(int rt)
+{
+    if(st[rt].min_tag){
+        ll tag = st[rt].min_tag;
+        st[2*rt].minv+=tag;
+        st[2*rt+1].minv+=tag;
+        st[2*rt].min_tag+=tag;
+        st[2*rt+1].min_tag+=tag;
+        st[rt].min_tag = 0;
+    }
+    if(st[rt].max_tag){
+        ll tag = st[rt].max_tag;
+        st[2*rt].maxv +=tag;
+        st[2*rt+1].maxv+=tag;
+        st[2*rt].max_tag+=tag;
+        st[2*rt+1].max_tag+=tag;
+        st[rt].max_tag = 0;
+    }
+}
+
+//build建树
+void build(int rt,int l,int r)
+{
+    if(l>r)return;
+    if(l == r){
+        st[rt].minv = st[rt].maxv = a[l];
+        return;
+    }
+    int mid = (l+r)/2;
+    build(2*rt,l,mid);
+    build(2*rt+1,mid+1,r);
+    push_up(rt);
+}
+ 
+//区间修改
+void update(int rt,int L,int R,int l,int r,int k)
+{
+    if(L<=l&&r<=R){
+        st[rt].minv+=k;
+        st[rt].maxv+=k;
+        // st[rt].min_tag+=k;
+        // st[rt].max_tag+=k;
+        return;
+    }
+    int mid = (l+r)/2;
+    push_down(rt);
+    if(mid>=L)update(2*rt,L,R,l,mid,k);
+    if(mid<R)update(2*rt+1,L,R,mid+1,r,k);
+    push_up(rt);
+}
+
+//区间最小值
+ll query_min(int rt,int L,int R,int l,int r)
+{
+    if(L<=l&&r<=R){
+        return st[rt].minv;
+    }
+    int mid =(l+r)/2;
+    push_down(rt);
+    ll res = 1e9;
+    if(mid>=L)res = min(res,query_min(2*rt,L,R,l,mid));
+    if(mid<R)res = min(res,query_min(2*rt+1,L,R,mid+1,r));
+    return res;
+}
+
+//区间最大值
+ll query_max(int rt,int L,int R,int l,int r)
+{
+    if(L<=l&&r<=R){
+        return st[rt].maxv;
+    }
+    int mid =(l+r)/2;
+    push_down(rt);
+    ll res = -1;
+    if(mid>=L)res = max(res,query_max(2*rt,L,R,l,mid));
+    if(mid<R)res = max(res,query_max(2*rt+1,L,R,mid+1,r));
+    return res;
+}
+
+//这里是对某个位置上直接更改
+void modify(int rt,int pos,int l,int r,int k)
+{
+    if(l == r){
+        st[rt].minv = st[rt].maxv = k;
+        return;
+    }
+    int mid = (l+r)/2;
+    if(pos<=mid)modify(2*rt,pos,l,mid,k);
+    if(pos>mid)modify(2*rt+1,pos,mid+1,r,k);
+    push_up(rt);
+}
+ 
+int find_left_max(int rt,int L,int R,int l,int r,int k)
+{
+    if(l == r){
+        if(st[rt].maxv<k)return -1;
+        return l;
+    }
+    int mid = (l+r)/2;
+    if(L>mid)return find_left_max(2*rt+1,L,R,mid+1,r,k);
+    if(R<=mid)return find_left_max(2*rt,L,R,l,mid,k);
+    if(st[2*rt].maxv<k)return find_left_max(2*rt+1,L,R,mid+1,r,k);
+    int tmp = find_left_max(2*rt,L,R,l,mid,k);
+    if(tmp!=-1)return tmp;
+    return find_left_max(2*rt+1,L,R,mid+1,r,k);
+}
+ 
+int find_right_min(int rt,int L,int R,int l,int r,int k)
+{
+    if(l == r){
+        if(st[rt].minv>k)return -1;
+        return l;
+    }
+    int mid = (l+r)/2;
+    if(L>mid)return find_right_min(2*rt+1,L,R,mid+1,r,k);
+    if(R<=mid)return find_right_min(2*rt,L,R,l,mid,k);
+    if(st[2*rt + 1].minv>k)return find_right_min(2*rt,L,R,l,mid,k);
+    int tmp =  find_right_min(2*rt+1,L,R,mid+1,r,k);
+    if(tmp!=-1)return tmp;
+    return find_right_min(2*rt,L,R,l,mid,k);
+}
+ 
+int q_sort(int l,int r)
+{
+    if(l>=r)return 0;
+    int mid = (l+r)/2;
+    int pviot = a[mid];
+    int cnt = 0;
+    int i = l - 1,j = r + 1;
+    while(1){
+        i = find_left_max(1,i+1,r,1,n,pviot);
+        j = find_right_min(1,l,j-1,1,n,pviot);
+        if(i<j){
+            modify(1,i,1,n,a[j]);
+            modify(1,j,1,n,a[i]);
+            swap(a[i],a[j]);
+            cnt++;
+        }
+        else break;
+    }
+    cnt+=q_sort(l,j);
+    cnt+=q_sort(j+1,r);
+    return cnt;
+}
+void solve()
+{
+    cin>>n;
+    for(int i=1;i<=n;i++)cin>>a[i];
+    build(1,1,n);
+    cout<<q_sort(1,n)<<"\n";
+}
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--){
+        solve();
+    }
+    return 0;
+}
