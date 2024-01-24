@@ -8,6 +8,7 @@ int nxt[maxn];
 int cnt[maxn];
 ll sum[maxn];
 
+//字符串的border和周期相关联，对于s[n],nxt[n]为s1到sn的最大border长度，n-nxt[n]是最小周期长度
 void kmp(int len)
 {
     nxt[1] = 0;//只有一个字符组成的字符串自然border最大长度为0（border即满足字符串真前缀与真后缀相等的前缀组成的字符串）

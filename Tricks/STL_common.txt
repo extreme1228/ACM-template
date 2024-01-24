@@ -1,0 +1,37 @@
+//集合并
+ set_union(
+                res1.begin(),res1.end(),
+                res2.begin(),res2.end(),
+                back_inserter(res)
+            );
+//集合交
+ set_intersection(
+                res1.begin(),res1.end(),
+                res2.begin(),res2.end(),
+                back_inserter(res)
+            );
+//集合差
+ set_difference(
+                res1.begin(),res1.end(),
+                res2.begin(),res2.end(),
+                back_inserter(res)
+            );
+//合并两个集合，不去重
+ set_merge(
+                res1.begin(),res1.end(),
+                res2.begin(),res2.end(),
+                back_inserter(res)
+            );
+
+//string 常用函数
+string s,t;
+s.substr(pos,len);//返回从pos位置开始的长度为len的子串，len=-1表示取到末尾位置
+s.find(t,pos);//从pos位置开始找子串t在s中的出现位置，返回第一个找到的位置，没有找到返回string::npos,pos不加默认从头找
+s.rfind(t,pos);//从pos位置开始从后向前寻找t在s中的出现位置，返回第一个找到的位置，没有找到返回string::npos,pos不加默认从尾部找
+
+
+//注意set中集合比较是依靠重定义<运算符来比较的
+
+//离散化
+ sort(content.begin(),content.end());
+content.erase(unique(content.begin(),content.end()),content.end());
