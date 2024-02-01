@@ -10,7 +10,7 @@ ll quick_power(ll a,ll k)
     ll res = 1;
     while(k){
         if(k&1)res = (res*a)%mod;
-        a = (a*a)%mod;
+        a = (a%mod*a)%mod;
         k>>=1;
     }
     return res;

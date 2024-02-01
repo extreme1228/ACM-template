@@ -1,3 +1,5 @@
+# 字典树
+```cpp
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -44,3 +46,4 @@ int find(string s)
     }
     return trie[rt].num;
 }
+```

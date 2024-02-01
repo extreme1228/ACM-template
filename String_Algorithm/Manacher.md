@@ -1,3 +1,5 @@
+# Manacher 算法
+```cpp
 /*
 Manacher算法适用于O(n)复杂度内解决字符串的回文串的求解问题
 */
@@ -34,3 +36,4 @@ int main()
     Manacher(s);
     return 0;
 }
+```
