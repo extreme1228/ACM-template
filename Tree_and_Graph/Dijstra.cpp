@@ -7,7 +7,6 @@ friend bool operator <(const NODE& a,const NODE&b)
     {
         return a.d>b.d;
     }
-
 且这次更新时该节点到原点已经是最短距离（PS：这也时Dijstra算法不能处理负权图的原因，由于负权边的存在
 使得贪心思想不再正确）*/
 #include<bits/stdc++.h>
@@ -15,44 +14,71 @@ using namespace std;
 typedef long long ll;
 const int INF = 1e9+7;
 const int maxn = 1e5+10;
-struct DIST{
-    int id;
-    int d;
-    friend bool operator <(const DIST& a,const DIST&b)
+struct dist{
+    ll id;
+    ll d;
+    friend bool operator <(const dist& a,const dist&b)
     {
         return a.d>b.d;
     }
+};//pq为优先队列，小根堆，按照距离大小依次弹出
+struct edge{
+    ll to;
+    ll cost;
 };
-struct EDGE{
-    int to;
-    int cost;
-};
-int d[maxn];
-int vis[maxn];
-vector<EDGE>G[maxn];
+ll dis[maxn];//d[]是距离数组，存储某个点到指定源点的当前最短距离
+int vis[maxn];//vis[]是标记数组，记录某个节点是否更新过
+vector<edge>g[maxn];
 
-void Dijkstra(int s)
+//O(mlogm)
+void Dijkstra1(int s,int n)
 {
-    priority_queue<DIST>pq;
-    memset(d,INF,sizeof(d));//d[]是距离数组，存储某个点到指定源点的当前最短距离
-    memset(vis,0,sizeof(vis));//vis[]是标记数组，记录某个节点是否更新过
-    d[s]=0;
-    pq.push({s,d[s]});//pq为优先队列，小根堆，按照距离大小依次弹出
+    priority_queue<dist>pq;
+    for(int i=0;i<=n;i++){
+        dis[i] = INF;
+        vis[i] = 0;
+    }
+    dis[s]=0;
+    pq.push({s,dis[s]});
     while(!pq.empty())
     {
-        DIST u=pq.top();
+        dist u=pq.top();
         pq.pop();
         if(vis[u.id])
             continue;
         vis[u.id]=1;
-        int id=u.id;
-        for(int i=0;i<G[id].size();i++){
-            EDGE e=G[id][i];
-            if(d[e.to]>d[id]+e.cost)
-            {
-                d[e.to]=d[id]+e.cost;
-                pq.push({e.to,d[e.to]});
+        for(auto e:g[u.id]){
+            if(dis[e.to]>dis[u.id] + e.cost){
+                dis[e.to]=dis[u.id]+e.cost;
+                pq.push({e.to,dis[e.to]});
             }
         }
     }
+    return;
+}
+
+//O(n^2)
+void Dijstra2(int s,int n)
+{
+    for(int i=0;i<=n;i++)dis[i] = INF,vis[i] = 0;
+    dis[s] = 0;
+    for(int i=1;i<=n;i++){
+        int u = -1;
+        ll minv = INF;
+        //这里依据具体情况枚举所有图中节点
+        for(int j=0;j<n;j++){
+            if(vis[j] == 0&&dis[j]<minv){
+                u = j;
+                minv = dis[j];
+            }
+        }
+        if(u == -1)return;
+        vis[u] = 1;
+        for(auto e:g[u]){
+            if(dis[e.to]>dis[u] + e.cost){
+                dis[e.to] = dis[u] + e.cost;
+            }
+        }
+    }
+    return;
 }
