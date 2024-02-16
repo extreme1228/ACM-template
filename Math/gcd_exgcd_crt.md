@@ -1,8 +1,5 @@
-//gcd,exgcd
-#include<bits/stdc++.h>
-using namespace std;
-typedef long long ll;
-
+## gcd
+```cpp
 //求a和b的最大公约数
 ll gcd(ll a,ll b)
 {
@@ -13,6 +10,9 @@ ll lcm(ll a,ll b)
 {
     return a*b/gcd(a,b);
 }
+```
+## exgcd
+```cpp
 //扩展欧几里得定理，可以求出ax+by = gcd(a,b)的具体的x与y的解x0,y0,
 //通解,x = x0 + b/gcd(a,b)*k,y = y0 - a/gcd(a,b)*k
 //也可以求a在模b意义下的逆元(当且仅当gcd(a,b) == 1时逆元存在)
@@ -30,7 +30,9 @@ void exgcd(ll a,ll b,ll&d,ll& x,ll& y)
     y = tmp - a/b*y;
     return;
 }
-//CRT中国剩余定理
+```
+## CRT
+```cpp
 /*
 求解 
 x = a1(mod n1)
@@ -65,7 +67,4 @@ ll CRT(vector<ll>a,vector<ll>n,ll mul,ll k)
     }
     return ans;
 }
-int main()
-{
-    return 0;
-}
+```
